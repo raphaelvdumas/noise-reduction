@@ -6,11 +6,11 @@
 import noisereduction as nr
 import os
 
-file = 'noised_audio' # wav file
-t_noise = 1 # time of noise at the beginning of file
+wav_file = 'noised_audio' # wav file
+t_noise = 1 # time of noise at the beginning of wav_file
 
-noised_audio = nr.Wiener(file, t_noise)
-noised_audio.get_wiener() # Generates a cleaned output of file using Wiener filter
+noised_audio = nr.Wiener(wav_file, t_noise)
+noised_audio.get_wiener() # Generates a cleaned output of wav_file using Wiener filter
 ```
 
 **Work in progress :** *Feedback and help would be greatly appreciated !*
