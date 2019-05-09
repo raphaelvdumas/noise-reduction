@@ -19,13 +19,8 @@ def halfwave_rectification(array):
 
 class Wiener:
     """
-    Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
-    Enhancement".
+    Class made for wiener filtering.
 
-    Reference :
-        Cyril Plapous, Claude Marro, Pascal Scalart. Improved Signal-to-Noise Ratio Estimation for Speech
-        Enhancement. IEEE Transactions on Audio, Speech and Language Processing, Institute of Electrical
-        and Electronics Engineers, 2006.
     """
 
     CHANNELS, MAXIMUM, FILE_NAME = 0, 0, ''
@@ -92,9 +87,19 @@ class Wiener:
     def get_wiener_two_step(self):
         """
         Function that returns the estimated speech signals using overlapp - add method
-        by applying a Two Step Noise Reduction on each frame (s_est_tsnr) to the noised input signal (x).
+        by applying a Two Step Noise Reduction on each frame (s_est_tsnr)
+        to the noised input signal (x).
             Output :
                 s_est_tsnr, s_est_hrnr : 1D np.array, 1D np.array
+
+        This noise reduction technique is based on the article
+        "Improved Signal-to-Noise Ratio Estimation for Speech Enhancement".
+
+        Reference :
+            Cyril Plapous, Claude Marro, Pascal Scalart. Improved Signal-to-Noise
+            Ratio Estimation for Speech Enhancement. IEEE Transactions on Audio,
+            Speech and Language Processing, Institute of Electrical
+            and Electronics Engineers, 2006.
         """
         Wiener.FILE_NAME = '_wiener_two_step'
         # Typical constant used to determine SNR_dd_prio
