@@ -9,11 +9,11 @@ audio = 'noised_audio' # name of wav file in current directory
 t_noise = 1 # time of noise at the beginning of audio
 
 noised_audio = noisereduction.Wiener(audio, t_noise)
-noised_audio.get_wiener() # Generates a cleaned wav file output of audio using Wiener filter
+noised_audio.wiener() # Generates a cleaned wav file output of audio using Wiener filter
 ```
 For a more advanced noise reduction technique, simply type :
 ```python
-noised_audio.get_wiener_two_step() # Generates a cleaned wav file output of audio
+noised_audio.wiener_two_step() # Generates a cleaned wav file output of audio
 ```
 Demonstration of the output wav files created can be found in the example directory using a noised guitar stereo audio signal.
 
