@@ -6,5 +6,5 @@ WAV_FILE = os.path.join(os.getcwd(), 'example/noisefunkguitare')
 T_NOISE = 1
 
 noised_audio = nr.Wiener(WAV_FILE, T_NOISE)
-noised_audio.get_wiener()
-noised_audio.get_wiener_two_step()
+noised_audio.wiener()
+noised_audio.wiener_two_step()
