@@ -39,16 +39,15 @@ class Wiener:
         self.WAV_FILE, self.T_NOISE = WAV_FILE, T_NOISE
         self.wav2data()
 
+        Wiener.CHANNELS = self.x.shape[1] if self.x.shape != (self.x.size,)  else 1
         # Constants are defined here
         self.NFFT, self.SHIFT =  2**10, 0.25
         self.FRAME = int(0.02*self.FS) # Frame of 20 ms
 
         # Computes the offset and number of frames for overlapp - add method.
         self.OFFSET = int(self.SHIFT*self.FRAME)
-        if Wiener.CHANNELS > 1:
-            self.FRAMES = (self.x.shape[0] - self.FRAME) // self.OFFSET + 1
-        else :
-            self.FRAMES = (self.x.size - self.FRAME) // self.OFFSET + 1
+        length = self.x.shape[0] if Wiener.CHANNELS > 1 else self.x.size
+        self.FRAMES = (length - self.FRAME) // self.OFFSET + 1
         # Hanning window and its energy Ew
         self.WINDOW = sg.hann(self.FRAME)
         self.EW = np.sum(self.WINDOW)
@@ -59,7 +58,6 @@ class Wiener:
 
     def wav2data(self):
         self.FS, self.x = wav.read(self.WAV_FILE + '.wav')
-        Wiener.CHANNELS = self.x.shape[1]
 
     def wav(self, data):
         wav.write(self.WAV_FILE + Wiener.FILE_NAME + '.wav', self.FS, data/Wiener.MAXIMUM)
