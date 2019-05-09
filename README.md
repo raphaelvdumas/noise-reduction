@@ -5,7 +5,7 @@ A simple example with the [Wiener filter](https://en.wikipedia.org/wiki/Wiener_f
 #!/usr/bin/env python3
 import noisereduction
 
-audio = 'noised_audio' # wav file in current directory
+audio = 'noised_audio' # name of wav file in current directory
 t_noise = 1 # time of noise at the beginning of audio
 
 noised_audio = noisereduction.Wiener(audio, t_noise)
