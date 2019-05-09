@@ -21,7 +21,6 @@ class Wiener:
     """
     Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
     Enhancement".
-    Created by Raphael Dumas.
 
     Reference :
         Cyril Plapous, Claude Marro, Pascal Scalart. Improved Signal-to-Noise Ratio Estimation for Speech

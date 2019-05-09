@@ -32,6 +32,3 @@ To install the libraries, clone this repository and in that directory execute:
 ```sh
 python3 -m pip install -r requirements.txt
 ```
-
-# About this project
-Created by [Raphaël Dumas](https://github.com/DumasRaphael) for a project first initiated at [Le Mans University](http://www.univ-lemans.fr/fr/index.html).
