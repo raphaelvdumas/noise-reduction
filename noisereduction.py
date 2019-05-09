@@ -56,55 +56,6 @@ class Wiener:
         self.N_NOISE = int(self.T_NOISE*self.FS)
         self.Sbb = self.welchs_periodogram()
 
-    def wav2data(self):
-        self.FS, self.x = wav.read(self.WAV_FILE + '.wav')
-
-    def wav(self, data):
-        wav.write(self.WAV_FILE + Wiener.FILE_NAME + '.wav', self.FS, data/Wiener.MAXIMUM)
-
-    @staticmethod
-    def a_posteriori_gain(SNR):
-        """
-        Function that computes the a posteriori gain G of Wiener filtering.
-            Input :
-                SNR : 1D np.array, Signal to Noise Ratio
-            Output :
-                G : 1D np.array, gain G of Wiener filtering
-        """
-        G = (SNR - 1)/SNR
-        return G
-
-    @staticmethod
-    def a_priori_gain(SNR):
-        """
-        Function that computes the a priori gain G of Wiener filtering.
-            Input :
-                SNR : 1D np.array, Signal to Noise Ratio
-            Output :
-                G : 1D np.array, gain G of Wiener filtering
-        """
-        G = SNR/(SNR + 1)
-        return G
-
-    def welchs_periodogram(self):
-        """
-        Estimation of the Power Spectral Density (Sbb) of the stationnary noise
-        with Welch's periodogram given prior knowledge of n_noise points where
-        speech is absent.
-            Output :
-                Sbb : 1D np.array, Power Spectral Density of stationnary noise
-        """
-        # Initialising Sbb
-        Sbb = np.zeros(self.NFFT)
-        # Number of frames used for the noise
-        NOISE_FRAMES = (self.N_NOISE - self.FRAME) // self.OFFSET + 1
-        for frame in range(NOISE_FRAMES):
-            i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
-            x_framed = fft(self.x[i_min:i_max, 0]*self.WINDOW, self.NFFT)
-            Sbbtmp = np.abs(x_framed)**2
-            Sbb = frame * Sbb / (frame + 1) + Sbbtmp / (frame + 1)
-        return Sbb
-
     def get_wiener(self):
         """
         Function that returns the estimated speech signal using overlapp - add method
@@ -136,8 +87,7 @@ class Wiener:
                 temp_s_est = np.real(ifft(S)) * self.SHIFT
                 s_est[i_min:i_max, channel] += temp_s_est[:self.FRAME]  # Truncating zero padding
         Wiener.MAXIMUM = s_est.max()
-        self.wav(s_est)
-        #return s_est
+        self.generate_wav(s_est)
 
     def get_wiener_two_step(self):
         """
@@ -193,4 +143,53 @@ class Wiener:
                 # Rolling matrix to update old values
                 S = np.roll(S, 1, axis=0)
         Wiener.MAXIMUM = s_est_tsnr.max()
-        self.wav(s_est_tsnr)
+        self.generate_wav(s_est_tsnr)
+
+    def wav2data(self):
+        self.FS, self.x = wav.read(self.WAV_FILE + '.wav')
+
+    def generate_wav(self, data):
+        wav.write(self.WAV_FILE + Wiener.FILE_NAME + '.wav', self.FS, data/Wiener.MAXIMUM)
+
+    @staticmethod
+    def a_posteriori_gain(SNR):
+        """
+        Function that computes the a posteriori gain G of Wiener filtering.
+            Input :
+                SNR : 1D np.array, Signal to Noise Ratio
+            Output :
+                G : 1D np.array, gain G of Wiener filtering
+        """
+        G = (SNR - 1)/SNR
+        return G
+
+    @staticmethod
+    def a_priori_gain(SNR):
+        """
+        Function that computes the a priori gain G of Wiener filtering.
+            Input :
+                SNR : 1D np.array, Signal to Noise Ratio
+            Output :
+                G : 1D np.array, gain G of Wiener filtering
+        """
+        G = SNR/(SNR + 1)
+        return G
+
+    def welchs_periodogram(self):
+        """
+        Estimation of the Power Spectral Density (Sbb) of the stationnary noise
+        with Welch's periodogram given prior knowledge of n_noise points where
+        speech is absent.
+            Output :
+                Sbb : 1D np.array, Power Spectral Density of stationnary noise
+        """
+        # Initialising Sbb
+        Sbb = np.zeros(self.NFFT)
+        # Number of frames used for the noise
+        NOISE_FRAMES = (self.N_NOISE - self.FRAME) // self.OFFSET + 1
+        for frame in range(NOISE_FRAMES):
+            i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
+            x_framed = fft(self.x[i_min:i_max, 0]*self.WINDOW, self.NFFT)
+            Sbbtmp = np.abs(x_framed)**2
+            Sbb = frame * Sbb / (frame + 1) + Sbbtmp / (frame + 1)
+        return Sbb
