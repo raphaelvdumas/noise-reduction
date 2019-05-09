@@ -15,7 +15,7 @@ A more advanced noise reduction technique :
 ```python
 noised_audio.get_wiener_two_step() # Generates a cleaned wav file output of audio
 ```
-Demonstration of the output wav files created can be found in the example directory using a noised guitar audio signal.
+Demonstration of the output wav files created can be found in the example directory using a noised guitar stereo audio signal.
 
 
 **Work in progress :**
