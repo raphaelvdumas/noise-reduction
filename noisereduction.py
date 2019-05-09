@@ -58,7 +58,7 @@ class Wiener:
             Output :
                 s_est : 1D np.array, Estimated speech signal
         """
-        Wiener.FILE_NAME = '_wiener'
+
         # Initialising estimated signal s_est
         s_est = np.zeros(self.x.shape)
         for channel in range(Wiener.CHANNELS):
@@ -81,7 +81,7 @@ class Wiener:
                 # Estimated signals at each frame normalized by the shift value
                 temp_s_est = np.real(ifft(S)) * self.SHIFT
                 s_est[i_min:i_max, channel] += temp_s_est[:self.FRAME]  # Truncating zero padding
-        Wiener.MAXIMUM = s_est.max()
+        Wiener.FILE_NAME, Wiener.MAXIMUM = '_wiener', s_est.max()
         self.generate_wav(s_est)
 
     def get_wiener_two_step(self):
@@ -101,7 +101,6 @@ class Wiener:
             Speech and Language Processing, Institute of Electrical
             and Electronics Engineers, 2006.
         """
-        Wiener.FILE_NAME = '_wiener_two_step'
         # Typical constant used to determine SNR_dd_prio
         beta = 0.98
 
@@ -147,7 +146,8 @@ class Wiener:
                 ############# Update ###############################################
                 # Rolling matrix to update old values
                 S = np.roll(S, 1, axis=0)
-        Wiener.MAXIMUM = s_est_tsnr.max()
+
+        Wiener.FILE_NAME, Wiener.MAXIMUM = '_wiener_two_step', s_est_tsnr.max()
         self.generate_wav(s_est_tsnr)
 
     def wav2data(self):
