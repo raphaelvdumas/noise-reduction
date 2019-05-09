@@ -4,13 +4,12 @@
 ```python
 #!/usr/bin/env python3
 import noisereduction as nr
-import os
 
-wav_file = 'noised_audio' # wav file
-t_noise = 1 # time of noise at the beginning of wav_file
+audio = 'noised_audio' # wav file
+t_noise = 1 # time of noise at the beginning of audio
 
-noised_audio = nr.Wiener(wav_file, t_noise)
-noised_audio.get_wiener() # Generates a cleaned output of wav_file using Wiener filter
+noised_audio = nr.Wiener(audio, t_noise)
+noised_audio.get_wiener() # Generates a cleaned wav file output of audio using Wiener filter
 ```
 
 **Work in progress :** *Feedback and help would be greatly appreciated !*
