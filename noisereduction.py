@@ -28,7 +28,7 @@ class NoisyAudio:
         self.OFFSET = int(self.SHIFT*self.FRAME)
         self.WINDOW = sg.hann(self.FRAME)
         self.EW = np.sum(self.WINDOW)
-                
+
         self.channels = range(self.x.shape[1]) if self.x.shape != (self.x.size,)  else range(1)
         length = self.x.shape[0] if len(self.channels) > 1 else self.x.size
         self.frames = range((length - self.FRAME) // self.OFFSET + 1)
@@ -63,6 +63,7 @@ class Wiener(NoisyAudio):
     def __init__(self, WAV_FILE, T_NOISE):
         super(Wiener, self).__init__(WAV_FILE)
         self.Sbb = NoiseEstimation.welchs_periodogram(self, T_NOISE)
+        self.s_est = np.zeros(self.x.shape)
 
     @staticmethod
     def a_posteriori_gain(SNR):
@@ -75,23 +76,21 @@ class Wiener(NoisyAudio):
         return G
 
     def wiener(self):
-        s_est = np.zeros(self.x.shape)
         for channel in self.channels:
             for frame in self.frames:
-                index = frame*self.OFFSET
-                x_framed = self.x[index:index + self.FRAME, channel]*self.WINDOW
+                i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
+                x_framed = self.x[i_min:i_max, channel]*self.WINDOW
                 X = fft(x_framed, self.NFFT)
                 SNR_post = (np.abs(X)**2/self.EW)/self.Sbb
                 G = Wiener.a_priori_gain(SNR_post)
                 S = X * G
                 temp_s_est = np.real(ifft(S)) * self.SHIFT
-                s_est[index:index + self.FRAME, channel] += temp_s_est[:self.FRAME]
+                self.s_est[i_min:i_max, channel] += temp_s_est[:self.FRAME]
 
-        self.generate_wav('_wiener', self.FS, s_est/s_est.max())
+        self.generate_wav('_wiener', self.FS, self.s_est/self.s_est.max())
 
     def wiener_two_step(self):
         beta = 0.98
-        s_est = np.zeros(self.x.shape)
         S = np.zeros((2, self.NFFT), dtype='cfloat')
         for channel in self.channels:
             for frame in self.frames:
@@ -117,9 +116,9 @@ class Wiener(NoisyAudio):
                 ############# Temporal estimated Signal ############################
                 # Estimated signal at frame normalized by the shift value
                 temp_s_est_tsnr = np.real(ifft(S_tsnr))*self.SHIFT
-                s_est[i_min:i_max, channel] += temp_s_est_tsnr[:self.FRAME] # Truncating zero padding
+                self.s_est[i_min:i_max, channel] += temp_s_est_tsnr[:self.FRAME] # Truncating zero padding
                 ############# Update ###############################################
                 # Rolling matrix to update old values
                 S = np.roll(S, 1, axis=0)
 
-        self.generate_wav('_wiener_two_step', self.FS, s_est/s_est.max())
+        self.generate_wav('_wiener_two_step', self.FS, self.s_est/self.s_est.max())
