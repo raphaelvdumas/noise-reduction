@@ -29,14 +29,14 @@ class Wiener:
         and Electronics Engineers, 2006.
     """
 
-    def __init__(self, WAV_FILE, T_NOISE):
+    def __init__(self, WAV_FILE, *T_NOISE):
         """
         Input :
             WAV_FILE
             T_NOISE : float, Time in seconds /!\ Only works if stationnary noise is at the beginning of x /!\
         """
         # Constants are defined here
-        self.WAV_FILE = WAV_FILE
+        self.WAV_FILE, self.T_NOISE = WAV_FILE, T_NOISE
         self.FS, self.x = wav.read(self.WAV_FILE + '.wav')
         self.NFFT, self.SHIFT, self.T_NOISE = 2**10, 0.5, T_NOISE
         self.FRAME = int(0.02*self.FS) # Frame of 20 ms
@@ -52,7 +52,6 @@ class Wiener:
         length = self.x.shape[0] if len(self.channels) > 1 else self.x.size
         self.frames = np.arange((length - self.FRAME) // self.OFFSET + 1)
         # Evaluating noise psd with n_noise
-        self.N_NOISE = int(self.T_NOISE*self.FS)
         self.Sbb = self.welchs_periodogram()
 
     @staticmethod
@@ -90,11 +89,12 @@ class Wiener:
         # Initialising Sbb
         Sbb = np.zeros((self.NFFT, self.channels.size))
 
+        self.N_NOISE = int(self.T_NOISE[0]*self.FS), int(self.T_NOISE[1]*self.FS)
         # Number of frames used for the noise
-        noise_frames = np.arange((self.N_NOISE - self.FRAME) // self.OFFSET + 1)
+        noise_frames = np.arange(((self.N_NOISE[1] -  self.N_NOISE[0])-self.FRAME) // self.OFFSET + 1)
         for channel in self.channels:
             for frame in noise_frames:
-                i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
+                i_min, i_max = frame*self.OFFSET + self.N_NOISE[0], frame*self.OFFSET + self.FRAME + self.N_NOISE[0]
                 x_framed = self.x[i_min:i_max, channel]*self.WINDOW
                 X_framed = fft(x_framed, self.NFFT)
                 Sbb[:, channel] = frame * Sbb[:, channel] / (frame + 1) + np.abs(X_framed)**2 / (frame + 1)

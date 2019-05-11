@@ -6,9 +6,9 @@ A simple example with the [Wiener filter](https://en.wikipedia.org/wiki/Wiener_f
 import noisereduction
 
 audio = 'noised_audio' # name of wav file in current directory
-t_noise = 1 # time of noise at the beginning of audio
+noise_begin, noise_end = 0, 1 # window in second where only noise is present 
 
-noised_audio = noisereduction.Wiener(audio, t_noise)
+noised_audio = noisereduction.Wiener(audio, noise_begin, noise_end)
 noised_audio.wiener() # Generates a cleaned wav file output of audio using Wiener filter
 ```
 For a more advanced noise reduction technique, simply type :
