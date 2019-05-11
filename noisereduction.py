@@ -95,9 +95,9 @@ class Wiener:
         for channel in self.channels:
             for frame in noise_frames:
                 i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
-                x_framed = fft(self.x[i_min:i_max, channel]*self.WINDOW, self.NFFT)
-                Sbbtmp = np.abs(x_framed)**2
-                Sbb[:, channel] = frame * Sbb[:, channel] / (frame + 1) + Sbbtmp / (frame + 1)
+                x_framed = self.x[i_min:i_max, channel]*self.WINDOW
+                X_framed = fft(x_framed, self.NFFT)
+                Sbb[:, channel] = frame * Sbb[:, channel] / (frame + 1) + np.abs(X_framed)**2 / (frame + 1)
         return Sbb
 
     def moving_average(self):
@@ -107,8 +107,9 @@ class Wiener:
         noise_frames = np.arange((self.N_NOISE - self.FRAME) + 1)
         for channel in self.channels:
             for frame in noise_frames:
-                x_framed = fft(self.x[frame:frame + self.FRAME, 0]*self.WINDOW, self.NFFT)
-                Sbb[:, channel] += np.abs(x_framed)**2
+                x_framed = self.x[frame:frame + self.FRAME, channel]*self.WINDOW
+                X_framed = fft(x_framed, self.NFFT)
+                Sbb[:, channel] += np.abs(X_framed)**2
         return Sbb/noise_frames.size
 
     def wiener(self):
