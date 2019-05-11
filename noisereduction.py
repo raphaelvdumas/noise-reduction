@@ -48,9 +48,9 @@ class Wiener:
         self.WINDOW = sg.hann(self.FRAME)
         self.EW = np.sum(self.WINDOW)
 
-        self.channels = range(self.x.shape[1]) if self.x.shape != (self.x.size,)  else range(1)
+        self.channels = np.arange(self.x.shape[1]) if self.x.shape != (self.x.size,)  else np.arange(1)
         length = self.x.shape[0] if len(self.channels) > 1 else self.x.size
-        self.frames = range((length - self.FRAME) // self.OFFSET + 1)
+        self.frames = np.arange((length - self.FRAME) // self.OFFSET + 1)
         # Evaluating noise psd with n_noise
         self.N_NOISE = int(self.T_NOISE*self.FS)
         self.Sbb = self.welchs_periodogram()
@@ -88,16 +88,28 @@ class Wiener:
                 Sbb : 1D np.array, Power Spectral Density of stationnary noise
         """
         # Initialising Sbb
-        Sbb = np.zeros(self.NFFT)
+        Sbb = np.zeros((self.NFFT, self.channels.size))
 
         # Number of frames used for the noise
-        NOISE_FRAMES = (self.N_NOISE - self.FRAME) // self.OFFSET + 1
-        for frame in range(NOISE_FRAMES):
-            i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
-            x_framed = fft(self.x[i_min:i_max, 0]*self.WINDOW, self.NFFT)
-            Sbbtmp = np.abs(x_framed)**2
-            Sbb = frame * Sbb / (frame + 1) + Sbbtmp / (frame + 1)
+        noise_frames = np.arange((self.N_NOISE - self.FRAME) // self.OFFSET + 1)
+        for channel in self.channels:
+            for frame in noise_frames:
+                i_min, i_max = frame*self.OFFSET, frame*self.OFFSET + self.FRAME
+                x_framed = fft(self.x[i_min:i_max, channel]*self.WINDOW, self.NFFT)
+                Sbbtmp = np.abs(x_framed)**2
+                Sbb[:, channel] = frame * Sbb[:, channel] / (frame + 1) + Sbbtmp / (frame + 1)
         return Sbb
+
+    def moving_average(self):
+        # Initialising Sbb
+        Sbb = np.zeros((self.NFFT, self.channels.size))
+        # Number of frames used for the noise
+        noise_frames = np.arange((self.N_NOISE - self.FRAME) + 1)
+        for channel in self.channels:
+            for frame in noise_frames:
+                x_framed = fft(self.x[frame:frame + self.FRAME, 0]*self.WINDOW, self.NFFT)
+                Sbb[:, channel] += np.abs(x_framed)**2
+        return Sbb/noise_frames.size
 
     def wiener(self):
         """
@@ -120,7 +132,7 @@ class Wiener:
 
                 ############# Wiener Filter ########################################
                 # Apply a priori wiener gains G to X_framed to get output S
-                SNR_post = (np.abs(X_framed)**2/self.EW)/self.Sbb
+                SNR_post = (np.abs(X_framed)**2/self.EW)/self.Sbb[:, channel]
                 G = Wiener.a_priori_gain(SNR_post)
                 S = X_framed * G
 
@@ -158,19 +170,19 @@ class Wiener:
 
                 ############# Wiener Filter ########################################
                 # Computation of spectral gain G using SNR a posteriori
-                SNR_post = np.abs(X_framed)**2/self.EW/self.Sbb
+                SNR_post = np.abs(X_framed)**2/self.EW/self.Sbb[:, channel]
                 G = Wiener.a_priori_gain(SNR_post)
                 S[0, :] = G * X_framed
 
                 ############# Directed Decision ####################################
                 # Computation of spectral gain G_dd using output S of Wiener Filter
-                SNR_dd_prio = beta*np.abs(S[-1, :])**2/self.Sbb + (1 - beta)*halfwave_rectification(SNR_post - 1)
+                SNR_dd_prio = beta*np.abs(S[-1, :])**2/self.Sbb[:, channel] + (1 - beta)*halfwave_rectification(SNR_post - 1)
                 G_dd = Wiener.a_priori_gain(SNR_dd_prio)
                 S_dd = G_dd * X_framed
 
                 ############# Two Step Noise Reduction #############################
                 # Computation of spectral gain G_tsnr using output S_dd of Directed Decision
-                SNR_tsnr_prio = np.abs(S_dd)**2/self.Sbb
+                SNR_tsnr_prio = np.abs(S_dd)**2/self.Sbb[:, channel]
                 G_tsnr = Wiener.a_priori_gain(SNR_tsnr_prio)
                 S_tsnr = G_tsnr * X_framed
 
