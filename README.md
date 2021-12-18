@@ -17,15 +17,13 @@ noised_audio.wiener_two_step() # Generates a cleaned wav file output of audio
 ```
 Demonstration of the output wav files created can be found in the example directory using a noised guitar stereo audio signal.
 
-
 **Work in progress :**
 For now, this works pretty well with stationnary noise, but in the future the main goal will be to implement much more noise reduction techniques like causal wiener filtering in real time, Kalmann filtering, wavelets ...
 And implement adaptive filtering algorithms treating the non-stationnary noise case. A long way to go !
 
 *That's why feedback and help would be greatly appreciated !*
 
-
-# Installation
+## Installation
 noise-reduction runs with Python 3.7 and depends on [scipy](https://www.scipy.org/) and [numpy](https://www.numpy.org/) exclusively.
 
 To install the libraries, clone this repository and in that directory execute:
