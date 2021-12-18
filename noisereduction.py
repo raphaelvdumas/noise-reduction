@@ -7,6 +7,7 @@ import numpy as np
 def halfwave_rectification(array):
     """
     Function that computes the half wave rectification with a threshold of 0.
+    
         Input :
             array : 1D np.array, Temporal frame
         Output :
