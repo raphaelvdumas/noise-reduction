@@ -5,12 +5,14 @@ import scipy.signal as sg
 import numpy as np
 
 def halfwave_rectification(array):
-    """Function that computes the half wave rectification with a threshold of 0.
+    """
+    Function that computes the half wave rectification with a threshold of 0.
     
     Input :
         array : 1D np.array, Temporal frame
     Output :
         halfwave : 1D np.array, Half wave temporal rectification
+        
     """
     halfwave = np.zeros(array.size)
     halfwave[np.argwhere(array > 0)] = 1
@@ -18,13 +20,15 @@ def halfwave_rectification(array):
 
 
 class Wiener:
-    """Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
+    """
+    Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
     Enhancement".
 
     Reference :
         Cyril Plapous, Claude Marro, Pascal Scalart. Improved Signal-to-Noise Ratio Estimation for Speech
         Enhancement. IEEE Transactions on Audio, Speech and Language Processing, Institute of Electrical
         and Electronics Engineers, 2006.
+        
     """
 
     def __init__(self, WAV_FILE, *T_NOISE):
@@ -32,6 +36,7 @@ class Wiener:
         Input :
             WAV_FILE
             T_NOISE : float, Time in seconds /!\ Only works if stationnary noise is at the beginning of x /!\
+            
         """
         # Constants are defined here
         self.WAV_FILE, self.T_NOISE = WAV_FILE, T_NOISE
@@ -56,10 +61,12 @@ class Wiener:
     def a_posteriori_gain(SNR):
         """
         Function that computes the a posteriori gain G of Wiener filtering.
+        
             Input :
                 SNR : 1D np.array, Signal to Noise Ratio
             Output :
                 G : 1D np.array, gain G of Wiener filtering
+                
         """
         G = (SNR - 1)/SNR
         return G
@@ -68,10 +75,12 @@ class Wiener:
     def a_priori_gain(SNR):
         """
         Function that computes the a priori gain G of Wiener filtering.
+        
             Input :
                 SNR : 1D np.array, Signal to Noise Ratio
             Output :
                 G : 1D np.array, gain G of Wiener filtering
+                
         """
         G = SNR/(SNR + 1)
         return G
@@ -81,8 +90,10 @@ class Wiener:
         Estimation of the Power Spectral Density (Sbb) of the stationnary noise
         with Welch's periodogram given prior knowledge of n_noise points where
         speech is absent.
+        
             Output :
                 Sbb : 1D np.array, Power Spectral Density of stationnary noise
+                
         """
         # Initialising Sbb
         Sbb = np.zeros((self.NFFT, self.channels.size))
@@ -114,8 +125,10 @@ class Wiener:
         """
         Function that returns the estimated speech signal using overlapp - add method
         by applying a Wiener Filter on each frame to the noised input signal.
+        
             Output :
                 s_est : 1D np.array, Estimated speech signal
+                
         """
         # Initialising estimated signal s_est
         s_est = np.zeros(self.x.shape)
@@ -145,8 +158,10 @@ class Wiener:
         """
         Function that returns the estimated speech signals using overlapp - add method
         by applying a Two Step Noise Reduction on each frame (s_est_tsnr) to the noised input signal (x).
+        
             Output :
                 s_est_tsnr, s_est_hrnr : 1D np.array, 1D np.array
+                
         """
         # Typical constant used to determine SNR_dd_prio
         beta = 0.98
