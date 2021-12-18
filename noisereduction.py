@@ -5,13 +5,12 @@ import scipy.signal as sg
 import numpy as np
 
 def halfwave_rectification(array):
-    """
-    Function that computes the half wave rectification with a threshold of 0.
+    """Function that computes the half wave rectification with a threshold of 0.
     
-        Input :
-            array : 1D np.array, Temporal frame
-        Output :
-            halfwave : 1D np.array, Half wave temporal rectification
+    Input :
+        array : 1D np.array, Temporal frame
+    Output :
+        halfwave : 1D np.array, Half wave temporal rectification
     """
     halfwave = np.zeros(array.size)
     halfwave[np.argwhere(array > 0)] = 1
@@ -19,10 +18,8 @@ def halfwave_rectification(array):
 
 
 class Wiener:
-    """
-    Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
+    """Class made for wiener filtering based on the article "Improved Signal-to-Noise Ratio Estimation for Speech
     Enhancement".
-    Created by Raphael Dumas.
 
     Reference :
         Cyril Plapous, Claude Marro, Pascal Scalart. Improved Signal-to-Noise Ratio Estimation for Speech
