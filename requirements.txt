@@ -1,2 +1,5 @@
-scipy==1.1.0
-numpy==1.15.0
+scipy
+numpy
+pyaudio
+numba
+np_rw_buffer
